@@ -31,7 +31,7 @@ int sprite_register(int rid,const void *src,int srcc) {
       break;
     }
   }
-  if (!tid) {
+  if (!sprite_type_by_id(tid)) {
     fprintf(stderr,"sprite:%d does not declare a type.\n",rid);
     return -1;
   }

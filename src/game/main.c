@@ -11,7 +11,7 @@ static void load_tilesheet(const void *src,int srcc) {
   struct tilesheet_entry entry;
   while (tilesheet_reader_next(&entry,&reader)>0) {
     if (entry.tableid!=NS_tilesheet_physics) continue;
-    memcpy(g.physics,entry.v+entry.tileid,entry.c);
+    memcpy(g.physics+entry.tileid,entry.v,entry.c);
   }
 }
 

@@ -6,7 +6,7 @@ Uplifting Game Jam #7, theme "ILLUSION".
 
 ## TODO
 
-- [ ] Physics
+- [x] Physics
 - [ ] Attacks
 - [ ] Foes
 - [ ] Level end

@@ -10,6 +10,7 @@
 #define GRAVITY_LIGHT_SOUND 5.0
 #define JUMPPOWER_INITIAL 20.0
 #define JUMPPOWER_LOSS_RATE 80.0
+#define COYOTE_LIMIT 0.100
  
 struct sprite_hero {
   struct sprite hdr;
@@ -22,6 +23,7 @@ struct sprite_hero {
   int jump_blackout;
   double jumppower;
   double gravity;
+  double coyoteclock; // Counts up from loss of seat.
 };
 
 #define SPRITE ((struct sprite_hero*)sprite)
@@ -67,8 +69,25 @@ static void hero_update_walk(struct sprite *sprite,double elapsed) {
  */
  
 static void hero_attempt_downjump(struct sprite *sprite) {
-  fprintf(stderr,"%s\n",__func__);//TODO
-  lti_sound(RID_sound_reject);
+  #define NOPE { lti_sound(RID_sound_reject); return; }
+  int row=(int)(sprite->y+sprite->hbb+0.001);
+  if ((row<0)||(row>=g.maph)) NOPE
+  int cola=(int)(sprite->x+sprite->hbl);
+  int colz=(int)(sprite->x+sprite->hbr-0.001);
+  if (cola<0) cola=0;
+  if (colz>=g.mapw) colz=g.mapw-1;
+  if (cola>colz) NOPE
+  int oneway=0;
+  const uint8_t *mapp=g.map+row*g.mapw+cola;
+  for (;cola<=colz;cola++,mapp++) {
+    uint8_t physics=g.physics[*mapp];
+    if (physics==NS_physics_solid) NOPE;
+    if (physics==NS_physics_oneway) oneway=1;
+  }
+  if (!oneway) NOPE
+  #undef NOPE
+  lti_sound(RID_sound_downjump);
+  sprite->y+=0.005; // Cheat down a smidge, then let nature take its course.
 }
 
 /* Start regular jump.
@@ -97,6 +116,14 @@ static void hero_update_jump(struct sprite *sprite,double elapsed) {
     return;
   }
   
+  // New stroke of south but not seated? Check the coyote clock.
+  if (!SPRITE->seated&&!(g.input&EGG_BTN_DOWN)&&(g.input&EGG_BTN_SOUTH)&&!(g.pvinput&EGG_BTN_SOUTH)&&!SPRITE->jump_blackout) {
+    if (SPRITE->coyoteclock<=COYOTE_LIMIT) {
+      hero_start_jump(sprite);
+      return;
+    }
+  }
+  
   // Can we drop the jump blackout?
   if (!(g.input&EGG_BTN_SOUTH)) {
     SPRITE->jump_blackout=0;
@@ -114,11 +141,16 @@ static void hero_update_jump(struct sprite *sprite,double elapsed) {
       sprite_move(sprite,0.0,-SPRITE->jumppower*elapsed);
     }
     
-  // No jump? Apply gravity.
+  // No jump? Apply gravity.  
   } else {
     if ((SPRITE->gravity+=GRAVITY_INCREASE_RATE*elapsed)>GRAVITY_LIMIT) SPRITE->gravity=GRAVITY_LIMIT;
     if (sprite_move(sprite,0.0,SPRITE->gravity*elapsed)) {
-      SPRITE->seated=0;
+      if (SPRITE->seated) {
+        SPRITE->seated=0;
+        SPRITE->coyoteclock=0.0;
+      } else {
+        SPRITE->coyoteclock+=elapsed;
+      }
     } else {
       if (!SPRITE->seated) {
         if (SPRITE->gravity>=GRAVITY_HEAVY_SOUND) lti_sound(RID_sound_land_heavy);
@@ -148,7 +180,11 @@ void _hero_render(struct sprite *sprite,int x,int y) {
   uint8_t tileid=sprite->tileid; // Nominal tile is the lower one.
   uint8_t xform=sprite->xform;
   
-  if (SPRITE->walking) {
+  if (SPRITE->jumppower>0.0) {
+    tileid+=3;
+  } else if (!SPRITE->seated&&(SPRITE->gravity>3.0)) { // Don't do the falling face immediately; it can get flickery.
+    tileid+=4;
+  } else if (SPRITE->walking) {
     switch (SPRITE->wanimframe) {
       case 1: tileid+=1; break;
       case 3: tileid+=2; break;
