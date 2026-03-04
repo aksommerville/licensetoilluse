@@ -1,0 +1,4 @@
+image image:graphics
+tile 144 0
+type (u16:sprtype)hero
+solid -5 4 -16 8
