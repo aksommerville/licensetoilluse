@@ -49,6 +49,11 @@ extern struct g {
 
 int start_scene(int mapid);
 
+/* Check for villains in the direction (dx) from (x,y), scare them if we find any.
+ * The illusions should call this repeatedly as they update.
+ */
+void lti_scare_foes(double x,double y,double dx);
+
 void lti_sound(int rid);
 void lti_song(int rid);
 

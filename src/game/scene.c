@@ -58,3 +58,10 @@ int start_scene(int mapid) {
 
   return 0;
 }
+
+/* Scare foes.
+ */
+ 
+void lti_scare_foes(double x,double y,double dx) {
+  //TODO
+}

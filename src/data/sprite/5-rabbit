@@ -1,0 +1,4 @@
+image image:graphics
+tile 160 0
+type (u16:sprtype)rabbit
+solid -5 4 0 8

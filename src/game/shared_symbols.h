@@ -33,10 +33,16 @@
 
 // Editor uses the comment after a 'sprtype' symbol as a prompt in the new-sprite modal.
 // Should match everything after 'spriteid' in the CMD_map_sprite args.
-#define NS_sprtype_dummy 0 /* (u32)0 */
-#define NS_sprtype_hero  1 /* (u32)0 */
+#define NS_sprtype_dummy      0 /* (u32)0 */
+#define NS_sprtype_hero       1 /* (u32)0 */
+#define NS_sprtype_ghost      2 /* (u32)0 */
+#define NS_sprtype_bird       3 /* (u32)0 */
+#define NS_sprtype_rabbit     4 /* (u32)0 */
 #define FOR_EACH_SPRTYPE \
   _(dummy) \
-  _(hero)
+  _(hero) \
+  _(ghost) \
+  _(bird) \
+  _(rabbit)
 
 #endif
