@@ -43,8 +43,11 @@ int egg_client_init() {
   }
 
   srand_auto();
+  
+  g.font=font_new();
+  if (font_add_image(g.font,RID_image_font9_0020,0x0020)<0) return -1;
 
-  reset_game();
+  if (!(g.hello=hello_new())) return -1;
 
   return 0;
 }
@@ -60,6 +63,23 @@ void egg_client_update(double elapsed) {
   g.pvinput=g.input;
   g.input=egg_input_get_one(0);
   
+  if (g.hello) {
+    if (!hello_update(g.hello,elapsed)) {
+      hello_del(g.hello);
+      g.hello=0;
+      reset_game();
+    }
+    return;
+  }
+  if (g.gameover) {
+    if (!gameover_update(g.gameover,elapsed)) {
+      gameover_del(g.gameover);
+      g.gameover=0;
+      g.hello=hello_new();
+    }
+    return;
+  }
+  
   g.playtime+=elapsed;
   
   if (g.resetclock>0.0) {
@@ -67,8 +87,9 @@ void egg_client_update(double elapsed) {
       int mapid=g.mapid;
       if (g.goalclock>0.0) mapid++;
       if (start_scene(mapid)<0) {
-        fprintf(stderr,"%s:%d: Game over, you win. TODO.\n",__FILE__,__LINE__);//TODO
-        reset_game();
+        g.gameover=gameover_new();
+        g.fadeout=1.0;
+        return;
       }
       g.fadeout=1.0;
     } else if (g.resetclock<1.0) {
@@ -115,11 +136,10 @@ static int render_count(int dstx,int dsty,uint8_t tileid,int c) {
   return dstx-dstx0;
 }
 
-/* Render.
+/* Render, no modal.
  */
-
-void egg_client_render() {
-  graf_reset(&g.graf);
+ 
+static void render_play() {
   
   // Going to try to keep all our graphics in this one tilesheet, and not use any non-texture ops.
   graf_set_image(&g.graf,RID_image_graphics);
@@ -193,7 +213,16 @@ void egg_client_render() {
     if (alpha>0xff) alpha=0xff;
     graf_fill_rect(&g.graf,0,0,FBW,FBH,0x00000000|alpha);
   }
-  
+}
+
+/* Render.
+ */
+
+void egg_client_render() {
+  graf_reset(&g.graf);
+  if (g.hello) hello_render(g.hello);
+  else if (g.gameover) gameover_render(g.gameover);
+  else render_play();
   graf_flush(&g.graf);
 }
 

@@ -49,6 +49,7 @@ int _hero_init(struct sprite *sprite) {
   SPRITE->seated=1; // All start positions should be pre-seated. If not, we'll figure it out soon enough.
   SPRITE->gravity=GRAVITY_INITIAL;
   SPRITE->action=ACTION_NONE;
+  SPRITE->jump_blackout=1;
   return 0;
 }
 

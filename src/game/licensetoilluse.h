@@ -10,6 +10,7 @@
 #include "egg_res_toc.h"
 #include "shared_symbols.h"
 #include "sprite/sprite.h"
+#include "modal/modal.h"
 
 #define SOUND_BLACKOUT_LIMIT 16
 #define GOAL_LIMIT 16
@@ -19,6 +20,7 @@ extern struct g {
   void *rom;
   int romc;
   struct graf graf;
+  struct font *font;
   uint8_t physics[256];
   int input,pvinput;
   int songid_playing;
@@ -60,6 +62,11 @@ extern struct g {
   int rabbitc,birdc;
   uint8_t powerupv[POWERUP_LIMIT];
   double playtime;
+  
+  /* Modals. Going super cheesy for this. If it's not null, it's active and the game is not.
+   */
+  struct hello *hello;
+  struct gameover *gameover;
   
 } g;
 
