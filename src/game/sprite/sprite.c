@@ -137,14 +137,28 @@ struct sprite *sprite_spawn(double x,double y,int rid,const void *arg,int argc) 
  */
  
 void sprites_update(double elapsed) {
+  int i;
+  struct sprite **p;
+  struct sprite *sprite;
+
+  /* Capture the hero; lots of other sprites are interested in him.
+   */
+  g.hero=0;
+  for (i=g.spritec,p=g.spritev;i-->0;p++) {
+    sprite=*p;
+    if (sprite->defunct) continue;
+    if (sprite->type==&sprite_type_hero) {
+      g.hero=sprite;
+      break;
+    }
+  }
   
   /* Iterate backward, do not retain a pointer, and skip defunct.
    * Should be safe to add sprites during iteration.
    * And of course "removing" is safe; that just means setting the defunct flag.
    */
-  int i=g.spritec;
-  while (i-->0) {
-    struct sprite *sprite=g.spritev[i];
+  for (i=g.spritec;i-->0;) {
+    sprite=g.spritev[i];
     if (sprite->defunct) continue;
     if (sprite->type->update) sprite->type->update(sprite,elapsed);
   }
@@ -152,14 +166,14 @@ void sprites_update(double elapsed) {
   /* Drop any defunct sprites.
    * This time it's safe to retain a pointer.
    */
-  struct sprite **p=g.spritev+g.spritec-1;
-  for (i=g.spritec;i-->0;p--) {
-    struct sprite *sprite=*p;
+  for (i=g.spritec,p=g.spritev+g.spritec-1;i-->0;p--) {
+    sprite=*p;
     if (!sprite->defunct) continue;
     g.spritec--;
     memmove(p,p+1,sizeof(void*)*(g.spritec-i));
     sprite_del(sprite);
   }
+  g.hero=0;
 }
 
 /* Search sprites.

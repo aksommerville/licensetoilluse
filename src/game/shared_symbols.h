@@ -38,11 +38,15 @@
 #define NS_sprtype_ghost      2 /* (u32)0 */
 #define NS_sprtype_bird       3 /* (u32)0 */
 #define NS_sprtype_rabbit     4 /* (u32)0 */
+#define NS_sprtype_soldier    5 /* (u32)0 */
+#define NS_sprtype_bullet     6 /* (u32)0 */
 #define FOR_EACH_SPRTYPE \
   _(dummy) \
   _(hero) \
   _(ghost) \
   _(bird) \
-  _(rabbit)
+  _(rabbit) \
+  _(soldier) \
+  _(bullet)
 
 #endif

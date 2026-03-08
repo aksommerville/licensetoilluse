@@ -21,6 +21,7 @@ struct sprite_bird {
 #define SPRITE ((struct sprite_bird*)sprite)
 
 static int _bird_init(struct sprite *sprite) {
+  sprite->spooky=1;
   sprite->xform=sprite->arg[0];
   SPRITE->tileid0=sprite->tileid;
   SPRITE->y0=sprite->y;

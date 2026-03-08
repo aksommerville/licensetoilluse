@@ -15,3 +15,4 @@ Uplifting Game Jam #7, theme "ILLUSION".
 - [ ] Hello
 - [ ] Sound effects
 - [ ] Music
+- [ ] sprite_soldier, we have walking tiles, but didn't implement idle walking.

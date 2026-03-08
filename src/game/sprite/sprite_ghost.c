@@ -14,6 +14,7 @@ struct sprite_ghost {
 #define SPRITE ((struct sprite_ghost*)sprite)
 
 static int _ghost_init(struct sprite *sprite) {
+  sprite->spooky=1;
   sprite->xform=sprite->arg[0];
   SPRITE->tileid0=sprite->tileid;
   SPRITE->animclock=0.250;

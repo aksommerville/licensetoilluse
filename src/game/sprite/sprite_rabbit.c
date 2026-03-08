@@ -19,6 +19,7 @@ struct sprite_rabbit {
 #define SPRITE ((struct sprite_rabbit*)sprite)
 
 static int _rabbit_init(struct sprite *sprite) {
+  sprite->spooky=1;
   sprite->xform=sprite->arg[0];
   SPRITE->tileid0=sprite->tileid;
   return 0;

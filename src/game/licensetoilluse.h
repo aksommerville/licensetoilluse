@@ -39,6 +39,7 @@ extern struct g {
    */
   struct sprite **spritev;
   int spritec,spritea;
+  struct sprite *hero; // WEAK, captured at start of cycle. Can be null.
   
   /* Most recent camera position.
    * Updates at the start of egg_client_render, and also gets an initial guess at start_scene.

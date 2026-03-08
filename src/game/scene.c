@@ -63,5 +63,5 @@ int start_scene(int mapid) {
  */
  
 void lti_scare_foes(double x,double y,double dx) {
-  //TODO
+  //XXX Foes scare themselves now.
 }

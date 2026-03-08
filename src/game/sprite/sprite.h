@@ -17,6 +17,7 @@ struct sprite {
   uint8_t tileid,xform;
   int solid; // sprite_move stops us at walls and each other
   double hbl,hbr,hbt,hbb;
+  int spooky; // Nonzero if we scare enemy soldiers.
 };
 
 struct sprite_type {
