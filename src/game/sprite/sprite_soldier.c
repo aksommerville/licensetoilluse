@@ -8,8 +8,14 @@
 #define DISAPPEAR_MARGIN 100 /* pixels */
 #define SPOOK_SPEED 8.0 /* m/s */
 #define SPOOK_VISIBILITY 4.0 /* Horizontal meters. */
-#define FIRE_TIME 1.000
+#define FIRE_TIME 0.750
 #define FIRE_VISIBILITY 7.0 /* Horizontal meters. */
+#define STUCK_DISAPPEAR_TIME 2.0
+#define WALK_TIME_MIN 1.000
+#define WALK_TIME_MAX 2.000
+#define WALK_SPEED 3.0
+#define CHILL_TIME_MIN 1.000
+#define CHILL_TIME_MAX 2.000
  
 struct sprite_soldier {
   struct sprite hdr;
@@ -19,6 +25,10 @@ struct sprite_soldier {
   int animframe;
   double recoil; // Counts down after firing rifle.
   double fireclock; // Counts down while hero in the fire box, before firing rifle.
+  double stuck; // Counts up while spooked and blocked horizontally.
+  double walkclock; // Counts down while idly walking.
+  double walkdx;
+  double chillclock; // Counts down when not idly walking.
 };
 
 #define SPRITE ((struct sprite_soldier*)sprite)
@@ -38,10 +48,10 @@ static int soldier_sees_something_spooky(struct sprite *sprite) {
   double visb=sprite->y+1.0;
   double visl,visr;
   if (sprite->xform&EGG_XFORM_XREV) {
-    visr=sprite->x;
+    visr=sprite->x+0.5;
     visl=visr-SPOOK_VISIBILITY;
   } else {
-    visl=sprite->x;
+    visl=sprite->x-0.5;
     visr=visl+SPOOK_VISIBILITY;
   }
 
@@ -67,7 +77,7 @@ static int soldier_sees_something_spooky(struct sprite *sprite) {
 static int solider_sees_something_shooty(struct sprite *sprite) {
   if (!g.hero) return 0;
   double dy=g.hero->y-sprite->y;
-  if ((dy<-2.0)||(dy>1.0)) return 0;
+  if ((dy<-1.0)||(dy>1.0)) return 0;
   double dx=g.hero->x-sprite->x;
   if (sprite->xform&EGG_XFORM_XREV) {
     if (dx<-FIRE_VISIBILITY) return 0;
@@ -85,6 +95,7 @@ static int solider_sees_something_shooty(struct sprite *sprite) {
 static void soldier_fire(struct sprite *sprite) {
   SPRITE->recoil=0.500;
   SPRITE->fireclock=0.0;
+  SPRITE->walkclock=0.0;
   lti_sound(RID_sound_rifle);
   double bulletx=sprite->x;
   double bullety=sprite->y;
@@ -93,6 +104,102 @@ static void soldier_fire(struct sprite *sprite) {
   uint8_t arg[4]={sprite->xform,0,0,0};
   struct sprite *bullet=sprite_spawn(bulletx,bullety,RID_sprite_bullet,arg,sizeof(arg));
   if (!bullet) return;
+}
+
+/* How far can I walk in each direction?
+ */
+ 
+static void soldier_measure_freedom(double *freel,double *freer,struct sprite *sprite) {
+  *freel=*freer=0.0;
+  
+  /* First walk outward gridwise.
+   * Require solid below and two rows vacant above.
+   * Oneways are permitted anywhere, since we're only moving horizontally.
+   * Zero freedom if OOB, and we can terminate when detected.
+   * This will assume that the sprite is centered in his cell horizontally, it's fine, doesn't need to be exact.
+   */
+  int x=(int)sprite->x;
+  if ((x<0)||(x>=g.mapw)) return;
+  int y=(int)sprite->y+1; // (y) is the solid row, must have two vacants above it.
+  if ((y<2)||(y>=g.maph)) return;
+  const uint8_t *solidrow=g.map+y*g.mapw;
+  const uint8_t *footrow=solidrow-g.mapw;
+  const uint8_t *headrow=footrow-g.mapw;
+  int qx=x;
+  for (;qx-->0;) {
+    if ((g.physics[solidrow[qx]]!=NS_physics_solid)&&(g.physics[solidrow[qx]]!=NS_physics_oneway)) break;
+    if ((g.physics[footrow[qx]]!=NS_physics_vacant)&&(g.physics[footrow[qx]]!=NS_physics_oneway)) break;
+    if ((g.physics[headrow[qx]]!=NS_physics_vacant)&&(g.physics[headrow[qx]]!=NS_physics_oneway)) break;
+    (*freel)+=1.0;
+  }
+  for (qx=x+1;qx<g.mapw;qx++) {
+    if ((g.physics[solidrow[qx]]!=NS_physics_solid)&&(g.physics[solidrow[qx]]!=NS_physics_oneway)) break;
+    if ((g.physics[footrow[qx]]!=NS_physics_vacant)&&(g.physics[footrow[qx]]!=NS_physics_oneway)) break;
+    if ((g.physics[headrow[qx]]!=NS_physics_vacant)&&(g.physics[headrow[qx]]!=NS_physics_oneway)) break;
+    (*freer)+=1.0;
+  }
+  if ((*freel<1.0)&&(*freer<1.0)) return;
+  
+  /* Reduce both freedoms if any solid sprite intersects.
+   */
+  double t=sprite->y+sprite->hbt;
+  double b=sprite->y+sprite->hbb;
+  struct sprite **otherp=g.spritev;
+  int i=g.spritec;
+  for (;i-->0;otherp++) {
+    struct sprite *other=*otherp;
+    if (other->defunct) continue;
+    if (!other->solid) continue;
+    if (other==sprite) continue;
+    if (other->y+other->hbb<=t) continue;
+    if (other->y+other->hbt>=b) continue;
+    double ol=other->x+other->hbl;
+    double or=other->x+other->hbr;
+    if ((or<=sprite->x)&&(or>other->x-(*freel))) *freel=sprite->x-or;
+    if ((ol>=sprite->x)&&(ol<other->x+(*freer))) *freer=ol-sprite->x;
+  }
+}
+
+/* Nothing much happening. Set up to either walk a little, or stand still.
+ */
+ 
+static void soldier_choose_idle_activity(struct sprite *sprite) {
+  SPRITE->walkclock=0.0;
+  SPRITE->chillclock=0.0;
+  
+  char candidatev[3]; // [lrc]
+  int candidatec=0;
+  double freel,freer;
+  soldier_measure_freedom(&freel,&freer,sprite);
+  if (freel>1.0) candidatev[candidatec++]='l';
+  if (freer>1.0) candidatev[candidatec++]='r';
+  candidatev[candidatec++]='c';
+  char action=candidatev[rand()%candidatec];
+  
+  double clocklimit=0.0;
+  switch (action) {
+    case 'l': {
+        SPRITE->walkdx=-WALK_SPEED;
+        SPRITE->walkclock=(rand()&0xffff)/65535.0;
+        SPRITE->walkclock=WALK_TIME_MIN*(1.0-SPRITE->walkclock)+WALK_TIME_MAX*SPRITE->walkclock;
+        sprite->xform=EGG_XFORM_XREV;
+        clocklimit=freel/WALK_SPEED;
+      } break;
+    case 'r': {
+        SPRITE->walkdx=WALK_SPEED;
+        SPRITE->walkclock=(rand()&0xffff)/65535.0;
+        SPRITE->walkclock=WALK_TIME_MIN*(1.0-SPRITE->walkclock)+WALK_TIME_MAX*SPRITE->walkclock;
+        sprite->xform=0;
+        clocklimit=freer/WALK_SPEED;
+      } break;
+    case 'c': {
+        SPRITE->chillclock=(rand()&0xffff)/65535.0;
+        SPRITE->chillclock=CHILL_TIME_MIN*(1.0-SPRITE->chillclock)+CHILL_TIME_MAX*SPRITE->chillclock;
+        SPRITE->animclock=0.0;
+        SPRITE->animframe=0;
+      } break;
+  }
+  if (SPRITE->walkclock>clocklimit) SPRITE->walkclock=clocklimit;
 }
 
 /* Update.
@@ -119,8 +226,16 @@ void _soldier_update(struct sprite *sprite,double elapsed) {
       SPRITE->animclock+=0.200;
       if (++(SPRITE->animframe)>=2) SPRITE->animframe=0;
     }
-    if (!falling) {
-      sprite_move(sprite,SPOOK_SPEED*SPRITE->spooked*elapsed,0.0);
+    if (falling) {
+      SPRITE->stuck=0.0;
+    } else {
+      if (sprite_move(sprite,SPOOK_SPEED*SPRITE->spooked*elapsed,0.0)) {
+        SPRITE->stuck=0.0;
+      } else {
+        if ((SPRITE->stuck+=elapsed)>STUCK_DISAPPEAR_TIME) {
+          sprite->defunct=1;
+        }
+      }
     }
     int xp=sprite->x*NS_sys_tilesize;
     if ((xp<g.camerax-DISAPPEAR_MARGIN)||(xp>g.camerax+FBW+DISAPPEAR_MARGIN)) {
@@ -129,9 +244,9 @@ void _soldier_update(struct sprite *sprite,double elapsed) {
     return;
   }
 
-  /* Face the hero.
+  /* Face the hero, if not walking.
    */
-  if (g.hero) {
+  if (g.hero&&(SPRITE->walkclock<=0.0)) {
     if (g.hero->x<sprite->x) sprite->xform=EGG_XFORM_XREV;
     else sprite->xform=0;
   }
@@ -140,6 +255,7 @@ void _soldier_update(struct sprite *sprite,double elapsed) {
    */
   if (soldier_sees_something_spooky(sprite)) {
     SPRITE->shocked=0.500;
+    SPRITE->animframe=0;
     if (sprite->xform&EGG_XFORM_XREV) {
       SPRITE->spooked=1;
     } else {
@@ -156,17 +272,40 @@ void _soldier_update(struct sprite *sprite,double elapsed) {
   }
   
   /* If the hero is in the fire box, tick down fireclock, and fire the rifle when it expires.
+   * Don't stop walking, if we're doing that.
    */
   if (solider_sees_something_shooty(sprite)) {
     if (SPRITE->fireclock<=0.0) SPRITE->fireclock=FIRE_TIME;
     if ((SPRITE->fireclock-=elapsed)<=0.0) {
       soldier_fire(sprite);
+      return;
     }
   } else {
     SPRITE->fireclock=0.0;
   }
   
-  //TODO Walk sometimes.
+  /* If we're idle-walking, carry on with that until time expires.
+   */
+  if (SPRITE->walkclock>0.0) {
+    SPRITE->walkclock-=elapsed;
+    sprite_move(sprite,SPRITE->walkdx*elapsed,0.0);
+    if ((SPRITE->animclock-=elapsed)<=0.0) {
+      SPRITE->animclock+=0.200;
+      if (++(SPRITE->animframe)>=4) SPRITE->animframe=0;
+    }
+    return;
+  }
+  
+  /* If we've decided to chill, chill.
+   */
+  if (SPRITE->chillclock>0.0) {
+    SPRITE->chillclock-=elapsed;
+    return;
+  }
+  
+  /* Nothing else going on, either chill a bit or walk a bit.
+   */
+  soldier_choose_idle_activity(sprite);
 }
 
 /* Render.
@@ -185,7 +324,11 @@ void _soldier_render(struct sprite *sprite,int x,int y) {
   } else if (SPRITE->recoil>0.0) {
     tileid+=3;
     
-  //TODO walking. Standing still is the default.
+  } else if (SPRITE->walkclock>0.0) {
+    switch (SPRITE->animframe) {
+      case 1: tileid+=1; break;
+      case 3: tileid+=2; break;
+    }
   }
   
   graf_tile(&g.graf,x,y,tileid,xform);

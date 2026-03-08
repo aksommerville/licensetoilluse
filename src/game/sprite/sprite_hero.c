@@ -198,6 +198,7 @@ static void hero_update_jump(struct sprite *sprite,double elapsed) {
       }
       SPRITE->seated=1;
       SPRITE->gravity=GRAVITY_INITIAL;
+      g.pvinput&=~EGG_BTN_WEST; // If they're holding WEST, make it look like a fresh stroke. (we update before actions).
       if (!SPRITE->jump_blackout&&!(g.input&EGG_BTN_DOWN)&&(g.input&EGG_BTN_SOUTH)) { // Let them bounce-jump, if it's a fresh stroke.
         hero_start_jump(sprite);
       }
