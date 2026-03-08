@@ -43,11 +43,11 @@ static void powerup_collect(struct sprite *sprite) {
       } break;
     case NS_powertype_rabbit: {
         g.have_rabbit=1;
-        g.rabbitc++;
+        g.rabbitc+=3;
       } break;
     case NS_powertype_bird: {
         g.have_bird=1;
-        g.birdc++;
+        g.birdc+=3;
       } break;
   }
   g.powerupv[SPRITE->index]=1;
