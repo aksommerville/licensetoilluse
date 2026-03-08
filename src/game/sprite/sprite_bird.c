@@ -6,7 +6,7 @@
 
 #define VERTICAL_SPEED 4.000 /* rad/sec */
 #define VERTICAL_RANGE -2.0 /* +-m */
-#define HORIZONTAL_SPEED 5.0 /* m/sec */
+#define HORIZONTAL_SPEED 8.0 /* m/sec. Should be faster than the hero, so he can't completely wipe out all the enemy forces with one bird. */
 #define KILL_MARGIN 100 /* px; how far offscreen before we kill it */
 
 struct sprite_bird {

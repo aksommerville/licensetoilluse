@@ -125,19 +125,23 @@ static void soldier_measure_freedom(double *freel,double *freer,struct sprite *s
   const uint8_t *solidrow=g.map+y*g.mapw;
   const uint8_t *footrow=solidrow-g.mapw;
   const uint8_t *headrow=footrow-g.mapw;
+  double ledge=sprite->x+sprite->hbl;
+  double redge=sprite->x+sprite->hbr;
   int qx=x;
   for (;qx-->0;) {
     if ((g.physics[solidrow[qx]]!=NS_physics_solid)&&(g.physics[solidrow[qx]]!=NS_physics_oneway)) break;
     if ((g.physics[footrow[qx]]!=NS_physics_vacant)&&(g.physics[footrow[qx]]!=NS_physics_oneway)) break;
     if ((g.physics[headrow[qx]]!=NS_physics_vacant)&&(g.physics[headrow[qx]]!=NS_physics_oneway)) break;
-    (*freel)+=1.0;
+    ledge=qx;
   }
   for (qx=x+1;qx<g.mapw;qx++) {
     if ((g.physics[solidrow[qx]]!=NS_physics_solid)&&(g.physics[solidrow[qx]]!=NS_physics_oneway)) break;
     if ((g.physics[footrow[qx]]!=NS_physics_vacant)&&(g.physics[footrow[qx]]!=NS_physics_oneway)) break;
     if ((g.physics[headrow[qx]]!=NS_physics_vacant)&&(g.physics[headrow[qx]]!=NS_physics_oneway)) break;
-    (*freer)+=1.0;
+    redge=qx+1.0;
   }
+  *freel=sprite->x+sprite->hbl-ledge;
+  *freer=redge-(sprite->x+sprite->hbr);
   if ((*freel<1.0)&&(*freer<1.0)) return;
   
   /* Reduce both freedoms if any solid sprite intersects.
@@ -155,8 +159,8 @@ static void soldier_measure_freedom(double *freel,double *freer,struct sprite *s
     if (other->y+other->hbt>=b) continue;
     double ol=other->x+other->hbl;
     double or=other->x+other->hbr;
-    if ((or<=sprite->x)&&(or>other->x-(*freel))) *freel=sprite->x-or;
-    if ((ol>=sprite->x)&&(ol<other->x+(*freer))) *freer=ol-sprite->x;
+    if ((or<=sprite->x)&&(or>sprite->x+sprite->hbl-(*freel))) *freel=sprite->x+sprite->hbl-or;
+    if ((ol>=sprite->x)&&(ol<sprite->x+sprite->hbr+(*freer))) *freer=ol-(sprite->x+sprite->hbr);
   }
 }
 

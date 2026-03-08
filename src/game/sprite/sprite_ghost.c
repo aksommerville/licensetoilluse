@@ -22,6 +22,10 @@ static int _ghost_init(struct sprite *sprite) {
 }
 
 static void _ghost_update(struct sprite *sprite,double elapsed) {
+  if (!g.hero) { // Maybe he got shot while summoning me. I should disappear.
+    sprite->defunct=1;
+    return;
+  }
   if ((SPRITE->animclock-=elapsed)<=0.0) {
     SPRITE->animclock+=0.250;
     if (++(SPRITE->animframe)>=2) SPRITE->animframe=0;
