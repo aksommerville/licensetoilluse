@@ -119,6 +119,7 @@ void reset_game() {
     fprintf(stderr,"Failed to start map:1!\n");
     egg_terminate(1);
   }
+  egg_play_song(1,RID_song_double_oh_no,1,1.0,0.0);
 }
 
 /* Scare foes.
