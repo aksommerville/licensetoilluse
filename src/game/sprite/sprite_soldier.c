@@ -44,7 +44,7 @@ int _soldier_init(struct sprite *sprite) {
 static int soldier_sees_something_spooky(struct sprite *sprite) {
 
   // Compute the visibility box.
-  double vist=sprite->y-2.0;
+  double vist=sprite->y-1.0;
   double visb=sprite->y+1.0;
   double visl,visr;
   if (sprite->xform&EGG_XFORM_XREV) {

@@ -166,6 +166,7 @@ void sprites_update(double elapsed) {
   /* Drop any defunct sprites.
    * This time it's safe to retain a pointer.
    */
+  if (g.hero&&g.hero->defunct) g.hero=0;
   for (i=g.spritec,p=g.spritev+g.spritec-1;i-->0;p--) {
     sprite=*p;
     if (!sprite->defunct) continue;
@@ -173,7 +174,6 @@ void sprites_update(double elapsed) {
     memmove(p,p+1,sizeof(void*)*(g.spritec-i));
     sprite_del(sprite);
   }
-  g.hero=0;
 }
 
 /* Search sprites.

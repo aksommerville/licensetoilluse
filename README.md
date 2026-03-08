@@ -9,7 +9,7 @@ Uplifting Game Jam #7, theme "ILLUSION".
 - [x] Physics
 - [x] Attacks
 - [x] Foes
-- [ ] Level end
+- [x] Level end
 - [x] Death
 - [ ] Rabbit and Bird should be metered, you have to collect and spend them.
 - [ ] Victory
@@ -22,3 +22,4 @@ Uplifting Game Jam #7, theme "ILLUSION".
 - [ ] Music
 - [x] sprite_soldier, we have walking tiles, but didn't implement idle walking.
 - [x] Should soldier defunct after some time, when spooked and horizontally blocked?
+- [ ] Soldiers tend to accidentally fall off platforms. I guess we do need to be exact in the path selection.

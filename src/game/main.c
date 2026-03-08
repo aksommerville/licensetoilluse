@@ -62,7 +62,12 @@ void egg_client_update(double elapsed) {
   
   if (g.resetclock>0.0) {
     if ((g.resetclock-=elapsed)<=0.0) {
-      start_scene(g.mapid);
+      int mapid=g.mapid;
+      if (g.goalclock>0.0) mapid++;
+      if (start_scene(mapid)<0) {
+        fprintf(stderr,"%s:%d: Game over, you win. TODO.\n",__FILE__,__LINE__);//TODO
+        start_scene(1);
+      }
       g.fadeout=1.0;
     } else if (g.resetclock<1.0) {
       g.fadeout=1.0-g.resetclock;
@@ -72,7 +77,7 @@ void egg_client_update(double elapsed) {
   }
 
   sprites_update(elapsed);
-  //TODO Check scene-end conditions.
+  scene_update_goal(elapsed);
 }
 
 /* Render.

@@ -12,6 +12,7 @@
 #include "sprite/sprite.h"
 
 #define SOUND_BLACKOUT_LIMIT 16
+#define GOAL_LIMIT 16
 
 extern struct g {
   void *rom;
@@ -27,12 +28,15 @@ extern struct g {
   int sound_blackoutc;
   
   /* There's one map loaded at a time and it's read-only.
+   * We index all the CMD_map_goal, and sort by (y,x).
    */
   int mapid;
   int mapw,maph;
   const uint8_t *map;
   const uint8_t *mapcmd;
   int mapcmdc;
+  struct goal { uint8_t x,y; } goalv[GOAL_LIMIT];
+  int goalc;
   
   /* One flat list of sprites, don't overthink it.
    * The whole map's worth of sprites get instantiated at scene start.
@@ -40,6 +44,8 @@ extern struct g {
   struct sprite **spritev;
   int spritec,spritea;
   struct sprite *hero; // WEAK, captured at start of cycle. Can be null.
+  int heroqx,heroqy; // Track hero's quantized position for goal detection.
+  double goalclock;
   
   /* Most recent camera position.
    * Updates at the start of egg_client_render, and also gets an initial guess at start_scene.
@@ -53,6 +59,7 @@ extern struct g {
 
 int start_scene(int mapid);
 void reset_soon();
+void scene_update_goal(double elapsed);
 
 /* Check for villains in the direction (dx) from (x,y), scare them if we find any.
  * The illusions should call this repeatedly as they update.

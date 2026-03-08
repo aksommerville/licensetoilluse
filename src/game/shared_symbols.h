@@ -14,6 +14,7 @@
 #define FBH 176
 
 #define CMD_map_image     0x20 /* u16:imageid */
+#define CMD_map_goal      0x21 /* u16:position */
 #define CMD_map_sprite    0x61 /* u16:position, u16:spriteid, u32:arg */
 #define CMD_map_door      0x62 /* u16:position, u16:mapid, u16:dstposition, u16:arg */
 
