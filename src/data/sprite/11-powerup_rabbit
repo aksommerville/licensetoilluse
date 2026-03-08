@@ -1,0 +1,4 @@
+image image:graphics
+tile 184 0
+type (u16:sprtype)powerup
+powertype (u16:powertype)rabbit

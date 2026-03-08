@@ -42,3 +42,5 @@ goal @28,19
 goal @29,19
 goal @30,19
 goal @31,19
+sprite @33,3 sprite:powerup_rabbit (u8:index)3 (u24)0
+sprite @41,13 sprite:powerup_rabbit (u8:index)4 (u24)0

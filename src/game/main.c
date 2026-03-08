@@ -44,7 +44,7 @@ int egg_client_init() {
 
   srand_auto();
 
-  if (start_scene(1)<0) return -1;
+  reset_game();
 
   return 0;
 }
@@ -60,13 +60,15 @@ void egg_client_update(double elapsed) {
   g.pvinput=g.input;
   g.input=egg_input_get_one(0);
   
+  g.playtime+=elapsed;
+  
   if (g.resetclock>0.0) {
     if ((g.resetclock-=elapsed)<=0.0) {
       int mapid=g.mapid;
       if (g.goalclock>0.0) mapid++;
       if (start_scene(mapid)<0) {
         fprintf(stderr,"%s:%d: Game over, you win. TODO.\n",__FILE__,__LINE__);//TODO
-        start_scene(1);
+        reset_game();
       }
       g.fadeout=1.0;
     } else if (g.resetclock<1.0) {
@@ -78,6 +80,39 @@ void egg_client_update(double elapsed) {
 
   sprites_update(elapsed);
   scene_update_goal(elapsed);
+}
+
+/* Render bits for the status bar.
+ * All return horizontal advancement.
+ */
+ 
+static int render_playtime(int dstx,int dsty) {
+  int dstx0=dstx;
+  int ms=(int)(g.playtime*1000.0);
+  int sec=ms/1000;
+  ms%=1000;
+  int min=sec/60;
+  sec%=60;
+  if (min>99) min=sec=99;
+  graf_tile(&g.graf,dstx,dsty,0x70+min/10,0); dstx+=4;
+  graf_tile(&g.graf,dstx,dsty,0x70+min%10,0); dstx+=4;
+  graf_tile(&g.graf,dstx,dsty,(ms>=800)?0x7b:0x7a,0); dstx+=4;
+  graf_tile(&g.graf,dstx,dsty,0x70+sec/10,0); dstx+=4;
+  graf_tile(&g.graf,dstx,dsty,0x70+sec%10,0); dstx+=4;
+  dstx+=5;
+  return dstx-dstx0;
+}
+
+// (c<0) for no quantity, the ghost.
+static int render_count(int dstx,int dsty,uint8_t tileid,int c) {
+  int dstx0=dstx;
+  graf_tile(&g.graf,dstx,dsty,tileid,0); dstx+=6;
+  if (c>=0) {
+    if (c>9) c=9;
+    graf_tile(&g.graf,dstx,dsty,0x70+c,0); dstx+=4;
+  }
+  dstx+=4;
+  return dstx-dstx0;
 }
 
 /* Render.
@@ -142,6 +177,14 @@ void egg_client_render() {
       graf_tile(&g.graf,x,y,sprite->tileid,sprite->xform);
     }
   }
+  
+  /* Stats along the top.
+   */
+  int statx=3,staty=5;
+  statx+=render_playtime(statx,staty);
+  if (g.have_ghost) statx+=render_count(statx,staty,0xba,-1);
+  if (g.have_rabbit) statx+=render_count(statx,staty,0xbb,g.rabbitc);
+  if (g.have_bird) statx+=render_count(statx,staty,0xbc,g.birdc);
   
   /* Global fade-out.
    */

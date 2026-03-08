@@ -1,4 +1,4 @@
 image image:graphics
 tile 192 0
 type (u16:sprtype)soldier
-solid -6 4 -18 8
+solid -6 4 -16 8

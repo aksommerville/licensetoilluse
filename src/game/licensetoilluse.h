@@ -13,6 +13,7 @@
 
 #define SOUND_BLACKOUT_LIMIT 16
 #define GOAL_LIMIT 16
+#define POWERUP_LIMIT 64 /* All powerup instances are identified; you can only get each once. */
 
 extern struct g {
   void *rom;
@@ -55,8 +56,14 @@ extern struct g {
   double resetclock;
   double fadeout;
   
+  int have_ghost,have_rabbit,have_bird; // Have we ever had this powerup? For ghost, that's the whole story.
+  int rabbitc,birdc;
+  uint8_t powerupv[POWERUP_LIMIT];
+  double playtime;
+  
 } g;
 
+void reset_game(); // Full reset, not just level-to-level or death.
 int start_scene(int mapid);
 void reset_soon();
 void scene_update_goal(double elapsed);

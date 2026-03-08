@@ -104,6 +104,23 @@ int start_scene(int mapid) {
   return 0;
 }
 
+/* Full reset.
+ */
+ 
+void reset_game() {
+  g.have_ghost=0;
+  g.have_rabbit=0;
+  g.have_bird=0;
+  g.rabbitc=0;
+  g.birdc=0;
+  memset(g.powerupv,0,sizeof(g.powerupv));
+  g.playtime=0.0;
+  if (start_scene(1)<0) {
+    fprintf(stderr,"Failed to start map:1!\n");
+    egg_terminate(1);
+  }
+}
+
 /* Scare foes.
  */
  

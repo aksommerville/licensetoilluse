@@ -25,3 +25,6 @@ sprite @25,5 sprite:soldier (u32)0
 sprite @30,4 sprite:soldier (u32)0
 sprite @37,2 sprite:soldier (u32)0
 sprite @44,3 sprite:soldier (u32)0
+sprite @36,7 sprite:powerup_ghost (u8:index)0 (u24)0
+sprite @41,8 sprite:powerup_rabbit (u8:index)1 (u24)0
+sprite @45,8 sprite:powerup_bird (u8:index)2 (u24)0

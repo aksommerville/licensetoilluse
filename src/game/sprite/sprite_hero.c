@@ -210,9 +210,13 @@ static void hero_update_jump(struct sprite *sprite,double elapsed) {
  */
  
 static void hero_begin_bird(struct sprite *sprite) {
-  //TODO check inventory
-  lti_sound(RID_sound_bird);
   SPRITE->action=ACTION_BIRD;
+  if (!g.birdc) {
+    lti_sound(RID_sound_reject);
+    return;
+  }
+  g.birdc--;
+  lti_sound(RID_sound_bird);
   double birdx=sprite->x;
   double birdy=sprite->y-1.25;
   const uint8_t birdarg[]={sprite->xform,0,0,0};
@@ -224,9 +228,13 @@ static void hero_begin_bird(struct sprite *sprite) {
  */
  
 static void hero_begin_rabbit(struct sprite *sprite) {
-  //TODO check inventory
-  lti_sound(RID_sound_rabbit);
   SPRITE->action=ACTION_RABBIT;
+  if (!g.rabbitc) {
+    lti_sound(RID_sound_reject);
+    return;
+  }
+  g.rabbitc--;
+  lti_sound(RID_sound_rabbit);
   double rabbitx=sprite->x;
   if (sprite->xform&EGG_XFORM_XREV) rabbitx-=1.0;
   else rabbitx+=1.0;
@@ -241,8 +249,12 @@ static void hero_begin_rabbit(struct sprite *sprite) {
  */
  
 static void hero_begin_ghost(struct sprite *sprite) {
-  lti_sound(RID_sound_ghost);
   SPRITE->action=ACTION_GHOST;
+  if (!g.have_ghost) {
+    lti_sound(RID_sound_reject);
+    return;
+  }
+  lti_sound(RID_sound_ghost);
   double ghostx=sprite->x;
   if (sprite->xform&EGG_XFORM_XREV) ghostx-=1.0;
   else ghostx+=1.0;

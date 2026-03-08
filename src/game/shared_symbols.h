@@ -18,10 +18,11 @@
 #define CMD_map_sprite    0x61 /* u16:position, u16:spriteid, u32:arg */
 #define CMD_map_door      0x62 /* u16:position, u16:mapid, u16:dstposition, u16:arg */
 
-#define CMD_sprite_image 0x20 /* u16:imageid ; only for editor's sake */
-#define CMD_sprite_tile  0x21 /* u8:tileid, u8:xform */
-#define CMD_sprite_type  0x22 /* u16:sprtype */
-#define CMD_sprite_solid 0x40 /* s8:left s8:right s8:top s8:bottom */
+#define CMD_sprite_image     0x20 /* u16:imageid ; only for editor's sake */
+#define CMD_sprite_tile      0x21 /* u8:tileid, u8:xform */
+#define CMD_sprite_type      0x22 /* u16:sprtype */
+#define CMD_sprite_powertype 0x24 /* u16:powertype ; NS_sprtype_powerup */
+#define CMD_sprite_solid     0x40 /* s8:left s8:right s8:top s8:bottom */
 
 #define NS_tilesheet_physics 1
 #define NS_tilesheet_family 0
@@ -31,6 +32,10 @@
 #define NS_physics_vacant 0
 #define NS_physics_solid 1
 #define NS_physics_oneway 2
+
+#define NS_powertype_ghost  1
+#define NS_powertype_rabbit 2
+#define NS_powertype_bird   3
 
 // Editor uses the comment after a 'sprtype' symbol as a prompt in the new-sprite modal.
 // Should match everything after 'spriteid' in the CMD_map_sprite args.
@@ -42,6 +47,7 @@
 #define NS_sprtype_soldier    5 /* (u32)0 */
 #define NS_sprtype_bullet     6 /* (u32)0 */
 #define NS_sprtype_soulballs  7 /* (u32)0 */
+#define NS_sprtype_powerup    8 /* (u8:index)0 (u24)0 */
 #define FOR_EACH_SPRTYPE \
   _(dummy) \
   _(hero) \
@@ -50,6 +56,7 @@
   _(rabbit) \
   _(soldier) \
   _(bullet) \
-  _(soulballs)
+  _(soulballs) \
+  _(powerup)
 
 #endif
