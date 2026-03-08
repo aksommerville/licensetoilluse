@@ -145,6 +145,7 @@ void _soldier_update(struct sprite *sprite,double elapsed) {
     } else {
       SPRITE->spooked=-1;
     }
+    sprite_spawn(sprite->x,sprite->y,RID_sprite_rifle,0,0);
     return;
   }
   

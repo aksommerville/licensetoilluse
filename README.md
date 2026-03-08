@@ -8,11 +8,12 @@ Uplifting Game Jam #7, theme "ILLUSION".
 
 - [x] Physics
 - [x] Attacks
-- [ ] Foes
+- [x] Foes
 - [ ] Level end
-- [ ] Death
+- [x] Death
 - [ ] Victory
 - [ ] Hello
 - [ ] Sound effects
 - [ ] Music
 - [ ] sprite_soldier, we have walking tiles, but didn't implement idle walking.
+- [ ] Should soldier defunct after some time, when spooked and horizontally blocked?

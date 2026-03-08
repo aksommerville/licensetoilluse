@@ -46,9 +46,13 @@ extern struct g {
    */
   int camerax,cameray;
   
+  double resetclock;
+  double fadeout;
+  
 } g;
 
 int start_scene(int mapid);
+void reset_soon();
 
 /* Check for villains in the direction (dx) from (x,y), scare them if we find any.
  * The illusions should call this repeatedly as they update.

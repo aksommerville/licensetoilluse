@@ -360,3 +360,14 @@ const struct sprite_type sprite_type_hero={
   .update=_hero_update,
   .render=_hero_render,
 };
+
+/* Get dead.
+ */
+ 
+void sprite_hero_get_dead(struct sprite *sprite,struct sprite *assailant) {
+  if (!sprite||(sprite->type!=&sprite_type_hero)) return;
+  sprite->defunct=1;
+  struct sprite *soulballs=sprite_spawn(sprite->x,sprite->y,RID_sprite_soulballs,0,0);
+  if (!soulballs) return;
+  reset_soon();
+}

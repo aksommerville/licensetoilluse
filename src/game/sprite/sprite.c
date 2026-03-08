@@ -59,7 +59,7 @@ static struct rom_entry *sprite_get_resource(int rid) {
 /* Delete.
  */
  
-static void sprite_del(struct sprite *sprite) {
+void sprite_del(struct sprite *sprite) {
   if (!sprite) return;
   if (sprite->type->del) sprite->type->del(sprite);
   free(sprite);

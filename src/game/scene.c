@@ -23,6 +23,11 @@ static void spawn_map_sprite(const uint8_t *arg) {
  
 int start_scene(int mapid) {
 
+  while (g.spritec>0) {
+    g.spritec--;
+    sprite_del(g.spritev[g.spritec]);
+  }
+
   const void *serial=0;
   int serialc=0;
   {
@@ -64,4 +69,11 @@ int start_scene(int mapid) {
  
 void lti_scare_foes(double x,double y,double dx) {
   //XXX Foes scare themselves now.
+}
+
+/* Set reset clock.
+ */
+ 
+void reset_soon() {
+  g.resetclock=2.000;
 }

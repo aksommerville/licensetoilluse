@@ -59,6 +59,17 @@ void egg_client_update(double elapsed) {
 
   g.pvinput=g.input;
   g.input=egg_input_get_one(0);
+  
+  if (g.resetclock>0.0) {
+    if ((g.resetclock-=elapsed)<=0.0) {
+      start_scene(g.mapid);
+      g.fadeout=1.0;
+    } else if (g.resetclock<1.0) {
+      g.fadeout=1.0-g.resetclock;
+    }
+  } else if (g.fadeout>0.0) {
+    g.fadeout-=elapsed;
+  }
 
   sprites_update(elapsed);
   //TODO Check scene-end conditions.
@@ -125,6 +136,14 @@ void egg_client_render() {
     } else {
       graf_tile(&g.graf,x,y,sprite->tileid,sprite->xform);
     }
+  }
+  
+  /* Global fade-out.
+   */
+  if (g.fadeout>0.0) {
+    int alpha=(int)(g.fadeout*255.0);
+    if (alpha>0xff) alpha=0xff;
+    graf_fill_rect(&g.graf,0,0,FBW,FBH,0x00000000|alpha);
   }
   
   graf_flush(&g.graf);

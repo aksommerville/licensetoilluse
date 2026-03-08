@@ -40,6 +40,7 @@
 #define NS_sprtype_rabbit     4 /* (u32)0 */
 #define NS_sprtype_soldier    5 /* (u32)0 */
 #define NS_sprtype_bullet     6 /* (u32)0 */
+#define NS_sprtype_soulballs  7 /* (u32)0 */
 #define FOR_EACH_SPRTYPE \
   _(dummy) \
   _(hero) \
@@ -47,6 +48,7 @@
   _(bird) \
   _(rabbit) \
   _(soldier) \
-  _(bullet)
+  _(bullet) \
+  _(soulballs)
 
 #endif

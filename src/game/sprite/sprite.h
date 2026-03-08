@@ -32,6 +32,9 @@ struct sprite_type {
 // Call at init for each resource.
 int sprite_register(int rid,const void *src,int srcc);
 
+// Prefer setting (sprite->defunct).
+void sprite_del(struct sprite *sprite);
+
 struct sprite *sprite_spawn(double x,double y,int rid,const void *arg,int argc);
 
 void sprites_update(double elapsed);
@@ -43,6 +46,8 @@ const struct sprite_type *sprite_type_by_id(int id);
 #define _(tag) extern const struct sprite_type sprite_type_##tag;
 FOR_EACH_SPRTYPE
 #undef _
+
+void sprite_hero_get_dead(struct sprite *sprite,struct sprite *assailant);
 
 /* Move with instant collision correction.
  * Returns nonzero if fully stopped due to collision.

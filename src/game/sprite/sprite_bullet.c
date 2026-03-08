@@ -29,7 +29,15 @@ static void _bullet_update(struct sprite *sprite,double elapsed) {
   if ((xp<g.camerax-DISAPPEAR_MARGIN)||(xp>g.camerax+FBW+DISAPPEAR_MARGIN)) {
     sprite->defunct=1;
   } else {
-    // Can we hurt somebody? TODO
+    if (g.hero&&!g.hero->defunct) {
+      double l=g.hero->x+g.hero->hbl;
+      double r=g.hero->x+g.hero->hbr;
+      double t=g.hero->y+g.hero->hbt;
+      double b=g.hero->y+g.hero->hbb;
+      if ((sprite->x>l)&&(sprite->x<r)&&(sprite->y>t)&&(sprite->y>t)&&(sprite->y<b)) {
+        sprite_hero_get_dead(g.hero,sprite);
+      }
+    }
   }
 }
 
