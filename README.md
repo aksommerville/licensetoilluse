@@ -18,7 +18,7 @@ Uplifting Game Jam #7, theme "ILLUSION".
 - - [ ] Base exterior.
 - - [ ] Base interior.
 - [x] Hello
-- [ ] Sound effects
+- [x] Sound effects
 - [x] Music
 - [x] sprite_soldier, we have walking tiles, but didn't implement idle walking.
 - [x] Should soldier defunct after some time, when spooked and horizontally blocked?
