@@ -142,14 +142,8 @@ struct gameover *gameover_new() {
     g.hiscore.timems=score.timems;
   }
   if (gameover->new_hiscore) {
-    score_save(&score);
+    score_save(&g.hiscore);
   }
-  fprintf(stderr,
-    "%s:%d: Score: total=%d timems=%d deathc=%d killc=%d attackc=%d coinc=%d new_hiscore=%d prev_hiscore=%d\n",
-    __FILE__,__LINE__,
-    score.total,score.timems,score.deathc,score.killc,score.attackc,score.coinc,
-    gameover->new_hiscore,gameover->prev_hiscore
-  );
   
   struct label *label;
   // "You win!" centered near the top.
