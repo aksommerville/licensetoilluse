@@ -135,7 +135,13 @@ struct gameover *gameover_new() {
   gameover->prev_hiscore=g.hiscore.total;
   if (score.total>g.hiscore.total) {
     gameover->new_hiscore=1;
-    g.hiscore=score;
+    g.hiscore.total=score.total;
+  }
+  if (!g.hiscore.timems||(score.timems<g.hiscore.timems)) {
+    gameover->new_hiscore=1;
+    g.hiscore.timems=score.timems;
+  }
+  if (gameover->new_hiscore) {
     score_save(&score);
   }
   fprintf(stderr,

@@ -21,7 +21,6 @@ sprite @56,1 sprite:powerup_bird (u8:index)2 (u24)0
 sprite @32,9 sprite:soldier (u32)0
 sprite @53,2 sprite:soldier (u32)0
 sprite @20,9 sprite:soldier (u32)0
-sprite @18,2 sprite:soldier (u32)0
 sprite @25,3 sprite:soldier (u32)0
 sprite @39,6 sprite:coin (u8:index)7 (u24)0
 sprite @7,6 sprite:coin (u8:index)1 (u24)0

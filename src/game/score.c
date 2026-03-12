@@ -1,15 +1,9 @@
 #include "licensetoilluse.h"
 
 /*
-Store under key "hiscore".
-Store the five constituent fields and also the total.
-Total could be calculated from the constituents but we'll also record it explicitly for validation.
-And if our save file is ever read by external tools, that would be more convenient.
-
-Field content is text.
-Unsigned decimal integers separated by commas.
-  TOTAL,TIMEMS,DEATHC,KILLC,ATTACKC,COINC
-TOTAL must be 6 digits.
+Use two store fields:
+  "hiscore": 6 decimal digits.
+  "besttime": "MM:SS.mmm"
 */
 
 /* Calculate total.
@@ -50,59 +44,97 @@ static int score_calculate_total(const struct score *score) {
  * Fails if it breaches the upper limit.
  */
  
-static int score_decode_int(int *dst,const char *src,int srcc,int limit) {
+static int score_decode_int(int *dst,const char *src,int srcc) {
   if (!src||(srcc<1)||(src[0]<'0')||(src[0]>'9')) return -1;
   *dst=0;
   int srcp=0;
   while (srcp<srcc) {
     char digit=src[srcp++];
-    if (digit==',') break;
     if ((digit<'0')||(digit>'9')) return -1;
     digit-='0';
     (*dst)*=10;
     (*dst)+=digit;
-    if ((*dst)>limit) return -1;
+    if (*dst>999999) return -1;
   }
   return srcp;
+}
+
+static int score_decode_time(int *dst,const char *src,int srcc) {
+  if (srcc!=9) return -1;
+  if ((src[2]!=':')||(src[4]!='.')) return -1;
+  int m10=src[0]-'0';
+  int m01=src[1]-'0';
+  int s10=src[3]-'0';
+  int s01=src[4]-'0';
+  int ms100=src[6]-'0';
+  int ms010=src[7]-'0';
+  int ms001=src[8]-'0';
+  if ((m10<0)||(m10>9)) return -1;
+  if ((m01<0)||(m01>9)) return -1;
+  if ((s10<0)||(s10>9)) return -1;
+  if ((s01<0)||(s01>9)) return -1;
+  if ((ms100<0)||(ms100>9)) return -1;
+  if ((ms010<0)||(ms010>9)) return -1;
+  if ((ms001<0)||(ms001>9)) return -1;
+  int min=m10*10+m01;
+  int sec=s10*10+s01;
+  int ms=ms100*100+ms010*10+ms001;
+  *dst=min*60000+sec*1000+ms;
+  return 0;
 }
 
 /* Encode unsigned integer.
  * Fails if <0 or if there's not enough room plus one after.
  */
  
-static int score_encode_int(char *dst,int dsta,int src) {
-  if (src<0) return -1;
-  int digitc=1,limit=10;
-  while (limit<=src) { digitc++; if (limit>INT_MAX/10) break; limit*=10; }
-  if (digitc>dsta-1) return -1;
-  int i=digitc;
-  for (;i-->0;src/=10) dst[i]='0'+src%10;
-  return digitc;
+static int score_encode_int6(char *dst,int dsta,int src) {
+  if (dsta<6) return -1;
+  if (src<0) src=0;
+  else if (src>999999) src=999999;
+  dst[0]='0'+(src/100000)%10;
+  dst[1]='0'+(src/ 10000)%10;
+  dst[2]='0'+(src/  1000)%10;
+  dst[3]='0'+(src/   100)%10;
+  dst[4]='0'+(src/    10)%10;
+  dst[5]='0'+(src       )%10;
+  return 6;
 }
 
-/* Set default.
- */
- 
-static int score_default(struct score *score) {
-  memset(score,0,sizeof(struct score));
-  return 0;
+static int score_encode_time(char *dst,int dsta,int src) {
+  if (dsta<9) return -1;
+  if (src<0) src=0;
+  int ms=src%1000;
+  int sec=src/1000;
+  int min=sec/60;
+  sec%=60;
+  if (min>99) {
+    min=sec=99;
+    ms=999;
+  }
+  dst[0]='0'+min/10;
+  dst[1]='0'+min%10;
+  dst[2]=':';
+  dst[3]='0'+sec/10;
+  dst[4]='0'+sec%10;
+  dst[5]='.';
+  dst[6]='0'+ms/100;
+  dst[7]='0'+(ms/10)%10;
+  dst[8]='0'+ms%10;
+  return 9;
 }
 
 /* Load or default.
  */
  
 int score_load(struct score *score) {
-  char src[32];
-  int srcc=egg_store_get(src,sizeof(src),"hiscore",7);
-  if ((srcc<1)||(srcc>sizeof(src))) return score_default(score);
-  int srcp=0,err;
-  if ((err=score_decode_int(&score->total,src+srcp,srcc-srcp,999999))<0) return score_default(score); srcp+=err;
-  if ((err=score_decode_int(&score->timems,src+srcp,srcc-srcp,INT_MAX/10))<0) return score_default(score); srcp+=err;
-  if ((err=score_decode_int(&score->deathc,src+srcp,srcc-srcp,99))<0) return score_default(score); srcp+=err;
-  if ((err=score_decode_int(&score->killc,src+srcp,srcc-srcp,999))<0) return score_default(score); srcp+=err;
-  if ((err=score_decode_int(&score->attackc,src+srcp,srcc-srcp,999))<0) return score_default(score); srcp+=err;
-  if ((err=score_decode_int(&score->coinc,src+srcp,srcc-srcp,99))<0) return score_default(score); srcp+=err;
-  if (score->total!=score_calculate_total(score)) return score_default(score);
+  memset(score,0,sizeof(struct score));
+  char hiscore[6],besttime[9];
+  if (egg_store_get(hiscore,sizeof(hiscore),"hiscore",7)==sizeof(hiscore)) {
+    if (score_decode_int(&score->total,hiscore,sizeof(hiscore))<0) score->total=0;
+  }
+  if (egg_store_get(besttime,sizeof(besttime),"besttime",8)==sizeof(besttime)) {
+    if (score_decode_time(&score->timems,besttime,sizeof(besttime))<0) score->timems=0;
+  }
   return 1;
 }
 
@@ -111,19 +143,13 @@ int score_load(struct score *score) {
 
 int score_save(const struct score *score) {
   char serial[32];
-  int serialc=0,err;
-  if ((err=score_encode_int(serial+serialc,sizeof(serial)-serialc,score->total))<0) return -1; serialc+=err;
-  serial[serialc++]=',';
-  if ((err=score_encode_int(serial+serialc,sizeof(serial)-serialc,score->timems))<0) return -1; serialc+=err;
-  serial[serialc++]=',';
-  if ((err=score_encode_int(serial+serialc,sizeof(serial)-serialc,score->deathc))<0) return -1; serialc+=err;
-  serial[serialc++]=',';
-  if ((err=score_encode_int(serial+serialc,sizeof(serial)-serialc,score->killc))<0) return -1; serialc+=err;
-  serial[serialc++]=',';
-  if ((err=score_encode_int(serial+serialc,sizeof(serial)-serialc,score->attackc))<0) return -1; serialc+=err;
-  serial[serialc++]=',';
-  if ((err=score_encode_int(serial+serialc,sizeof(serial)-serialc,score->coinc))<0) return -1; serialc+=err;
-  if (egg_store_set("hiscore",7,serial,serialc)<0) return -1;
+  int serialc;
+  if ((serialc=score_encode_int6(serial,sizeof(serial),score->total))>=0) {
+    egg_store_set("hiscore",7,serial,serialc);
+  }
+  if ((serialc=score_encode_time(serial,sizeof(serial),score->timems))>=0) {
+    egg_store_set("besttime",8,serial,serialc);
+  }
   return 0;
 }
 
