@@ -64,6 +64,10 @@ void egg_client_update(double elapsed) {
 
   g.pvinput=g.input;
   g.input=egg_input_get_one(0);
+  if (g.poison_input) {
+    if (!(g.poison_input&g.input)) g.poison_input=0;
+    else g.input=0;
+  }
   
   if (g.hello) {
     if (!hello_update(g.hello,elapsed)) {
@@ -81,11 +85,20 @@ void egg_client_update(double elapsed) {
     }
     return;
   }
+  if (g.pause) {
+    if (!pause_update(g.pause,elapsed)) {
+      pause_del(g.pause);
+      g.pause=0;
+    }
+    return;
+  } else {
+    if ((g.input&EGG_BTN_AUX1)&&!(g.pvinput&EGG_BTN_AUX1)) {
+      g.pause=pause_new();
+      return;
+    }
+  }
   
   g.playtime+=elapsed;
-  
-  //XXX AUX2 to win
-  if ((g.input&EGG_BTN_AUX2)&&!(g.pvinput&EGG_BTN_AUX2)) g.resetclock=g.goalclock=0.500;
   
   if (g.resetclock>0.0) {
     if ((g.resetclock-=elapsed)<=0.0) {
@@ -228,6 +241,9 @@ void egg_client_render() {
   if (g.hello) hello_render(g.hello);
   else if (g.gameover) gameover_render(g.gameover);
   else render_play();
+  if (g.pause) {
+    pause_render(g.pause);
+  }
   graf_flush(&g.graf);
 }
 

@@ -8,6 +8,7 @@
 
 struct hello;
 struct gameover;
+struct pause;
 
 void hello_del(struct hello *hello);
 struct hello *hello_new();
@@ -18,5 +19,10 @@ void gameover_del(struct gameover *gameover);
 struct gameover *gameover_new();
 int gameover_update(struct gameover *gameover,double elapsed); // zero to terminate
 void gameover_render(struct gameover *gameover);
+
+void pause_del(struct pause *pause);
+struct pause *pause_new();
+int pause_update(struct pause *pause,double elapsed); // zero to terminate
+void pause_render(struct pause *pause); // Render background first.
 
 #endif

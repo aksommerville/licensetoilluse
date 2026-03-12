@@ -26,6 +26,7 @@ extern struct g {
   struct font *font;
   uint8_t physics[256];
   int input,pvinput;
+  int poison_input; // Report these bits zero until they clear.
   int songid_playing;
   struct sound_blackout {
     int rid;
@@ -72,6 +73,7 @@ extern struct g {
    */
   struct hello *hello;
   struct gameover *gameover;
+  struct pause *pause;
   
 } g;
 

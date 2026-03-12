@@ -31,3 +31,5 @@ I'm American and I forgot that the game's inspiration, _Licence to Kill_, is Bri
 - - ...failed to account for SMIDGE in the previous position. Corrected, and ran >100 reps with no fall-thru.
 - [ ] Prettier scenery.
 - [ ] Itch page.
+- [x] Need some hard reset option! Esp at the very end, if you scare the last guard, you can't win and maybe can't die either.
+- - AUX1 to pause, with "Restart Level" and "Main Menu" options.
