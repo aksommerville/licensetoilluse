@@ -97,11 +97,11 @@ void egg_client_update(double elapsed) {
         return;
       }
       g.fadeout=1.0;
-    } else if (g.resetclock<1.0) {
-      g.fadeout=1.0-g.resetclock;
+    } else if (g.resetclock<FADE_OUT_TIME) {
+      g.fadeout=1.0-g.resetclock/FADE_OUT_TIME;
     }
   } else if (g.fadeout>0.0) {
-    g.fadeout-=elapsed;
+    g.fadeout-=elapsed/FADE_IN_TIME;
   }
 
   sprites_update(elapsed);

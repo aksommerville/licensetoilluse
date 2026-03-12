@@ -137,13 +137,13 @@ void lti_scare_foes(double x,double y,double dx) {
  */
  
 void reset_soon() {
-  g.resetclock=2.000;
+  g.resetclock=1.000;
 }
 
 /* Check goals.
  */
  
-#define GOAL_TIME 0.500
+#define GOAL_TIME 0.250
 
 void scene_update_goal(double elapsed) {
   int nqx=-1,nqy=-1;
@@ -163,7 +163,7 @@ void scene_update_goal(double elapsed) {
   }
   if (g.goalclock>0.0) {
     if (((g.goalclock+=elapsed)>=GOAL_TIME)&&(g.resetclock<=0.0)) {
-      g.resetclock=1.0;
+      g.resetclock=FADE_OUT_TIME;
     }
   }
 }

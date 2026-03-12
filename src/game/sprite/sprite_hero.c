@@ -77,7 +77,11 @@ static void hero_update_duck(struct sprite *sprite,double elapsed) {
 static void hero_update_walk(struct sprite *sprite,double elapsed) {
   int dx=0;
   if (!SPRITE->ducking&&!SPRITE->action) {
-    switch (g.input&(EGG_BTN_LEFT|EGG_BTN_RIGHT)) {
+    int input=(g.input&(EGG_BTN_LEFT|EGG_BTN_RIGHT));
+    if ((g.resetclock>0.0)&&(g.goalclock>0.100)&&input) {
+      input=0;
+    }
+    switch (input) {
       case EGG_BTN_LEFT: dx=-1; break;
       case EGG_BTN_RIGHT: dx=1; break;
     }
@@ -102,6 +106,7 @@ static void hero_update_walk(struct sprite *sprite,double elapsed) {
  */
  
 static void hero_attempt_downjump(struct sprite *sprite) {
+  if (g.goalclock>0.0) return;
   #define NOPE { lti_sound(RID_sound_reject); return; }
   int row=(int)(sprite->y+sprite->hbb+0.001);
   if ((row<0)||(row>=g.maph)) NOPE
@@ -128,6 +133,7 @@ static void hero_attempt_downjump(struct sprite *sprite) {
  */
  
 static void hero_start_jump(struct sprite *sprite) {
+  if (g.goalclock>0.0) return;
   SPRITE->jump_blackout=1;
   SPRITE->jumppower=JUMPPOWER_INITIAL;
   SPRITE->seated=0;

@@ -16,6 +16,8 @@
 #define SOUND_BLACKOUT_LIMIT 16
 #define GOAL_LIMIT 16
 #define POWERUP_LIMIT 64 /* All powerup instances are identified; you can only get each once. Coins count as powerups. */
+#define FADE_OUT_TIME 0.500
+#define FADE_IN_TIME 0.500
 
 extern struct g {
   void *rom;
