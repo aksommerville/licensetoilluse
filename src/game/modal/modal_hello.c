@@ -1,6 +1,6 @@
 #include "game/licensetoilluse.h"
 
-#define LABEL_LIMIT 3
+#define LABEL_LIMIT 4
 
 struct hello {
   double herox,heroy;
@@ -54,7 +54,19 @@ struct hello *hello_new() {
   
   hello_add_label(hello,6);
   hello_add_label(hello,7);
-  hello_add_label(hello,8);
+  
+  if (g.hiscore.total&&(hello->labelc<LABEL_LIMIT)) {
+    struct text_insertion ins={.mode='i',.i=g.hiscore.total};
+    char tmp[256];
+    int tmpc=text_format_res(tmp,sizeof(tmp),1,19,&ins,1);
+    if ((tmpc>0)&&(tmpc<=sizeof(tmp))) {
+      struct label *label=hello->labelv+hello->labelc++;
+      memset(label,0,sizeof(struct label));
+      label->texid=font_render_to_texture(0,g.font,tmp,tmpc,FBW,FBH,0xc0c0c0ff);
+      egg_texture_get_size(&label->w,&label->h,label->texid);
+      label->x=(FBW>>1)-(label->w>>1);
+    }
+  }
   
   // Line up labels against the bottom.
   int y=FBH;

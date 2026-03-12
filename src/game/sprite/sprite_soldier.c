@@ -295,6 +295,7 @@ void _soldier_update(struct sprite *sprite,double elapsed) {
       SPRITE->spooked=-1;
     }
     sprite_spawn(sprite->x,sprite->y,RID_sprite_rifle,0,0);
+    g.killc++;
     return;
   }
   

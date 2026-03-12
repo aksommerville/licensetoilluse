@@ -32,3 +32,9 @@ goal @4,14
 goal @5,14
 goal @6,14
 goal @7,14
+sprite @12,6 sprite:coin (u8:index)17 (u24)0
+sprite @16,3 sprite:coin (u8:index)23 (u24)0
+sprite @1,17 sprite:coin (u8:index)19 (u24)0
+sprite @34,15 sprite:coin (u8:index)20 (u24)0
+sprite @37,8 sprite:coin (u8:index)21 (u24)0
+sprite @21,4 sprite:coin (u8:index)18 (u24)0

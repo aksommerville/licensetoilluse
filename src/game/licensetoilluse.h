@@ -11,10 +11,11 @@
 #include "shared_symbols.h"
 #include "sprite/sprite.h"
 #include "modal/modal.h"
+#include "score.h"
 
 #define SOUND_BLACKOUT_LIMIT 16
 #define GOAL_LIMIT 16
-#define POWERUP_LIMIT 64 /* All powerup instances are identified; you can only get each once. */
+#define POWERUP_LIMIT 64 /* All powerup instances are identified; you can only get each once. Coins count as powerups. */
 
 extern struct g {
   void *rom;
@@ -62,6 +63,8 @@ extern struct g {
   int rabbitc,birdc;
   uint8_t powerupv[POWERUP_LIMIT];
   double playtime;
+  int deathc,killc,attackc,coinc;
+  struct score hiscore;
   
   /* Modals. Going super cheesy for this. If it's not null, it's active and the game is not.
    */

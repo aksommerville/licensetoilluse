@@ -46,6 +46,8 @@ int egg_client_init() {
   
   g.font=font_new();
   if (font_add_image(g.font,RID_image_font9_0020,0x0020)<0) return -1;
+  
+  score_load(&g.hiscore);
 
   if (!(g.hello=hello_new())) return -1;
 
@@ -81,6 +83,9 @@ void egg_client_update(double elapsed) {
   }
   
   g.playtime+=elapsed;
+  
+  //XXX AUX2 to win
+  if ((g.input&EGG_BTN_AUX2)&&!(g.pvinput&EGG_BTN_AUX2)) g.resetclock=g.goalclock=0.500;
   
   if (g.resetclock>0.0) {
     if ((g.resetclock-=elapsed)<=0.0) {

@@ -115,6 +115,10 @@ void reset_game() {
   g.birdc=0;
   memset(g.powerupv,0,sizeof(g.powerupv));
   g.playtime=0.0;
+  g.deathc=0;
+  g.killc=0;
+  g.attackc=0;
+  g.coinc=0;
   if (start_scene(1)<0) {
     fprintf(stderr,"Failed to start map:1!\n");
     egg_terminate(1);

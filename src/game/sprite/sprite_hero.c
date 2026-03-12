@@ -223,6 +223,7 @@ static void hero_begin_bird(struct sprite *sprite) {
   const uint8_t birdarg[]={sprite->xform,0,0,0};
   struct sprite *bird=sprite_spawn(birdx,birdy,RID_sprite_bird,birdarg,sizeof(birdarg));
   if (!bird) return;
+  g.attackc++;
 }
 
 /* Summon a rabbit.
@@ -243,6 +244,7 @@ static void hero_begin_rabbit(struct sprite *sprite) {
   const uint8_t rabbitarg[]={sprite->xform,0,0,0};
   struct sprite *rabbit=sprite_spawn(rabbitx,rabbity,RID_sprite_rabbit,rabbitarg,sizeof(rabbitarg));
   if (!rabbit) return;
+  g.attackc++;
 }
 
 /* Summon a ghost.
@@ -263,6 +265,7 @@ static void hero_begin_ghost(struct sprite *sprite) {
   const uint8_t ghostarg[]={sprite->xform,0,0,0};
   struct sprite *ghost=sprite_spawn(ghostx,ghosty,RID_sprite_ghost,ghostarg,sizeof(ghostarg));
   if (!ghost) return;
+  g.attackc++;
 }
 
 static void hero_kill_ghost(struct sprite *sprite) {
@@ -383,5 +386,6 @@ void sprite_hero_get_dead(struct sprite *sprite,struct sprite *assailant) {
   sprite->defunct=1;
   struct sprite *soulballs=sprite_spawn(sprite->x,sprite->y,RID_sprite_soulballs,0,0);
   if (!soulballs) return;
+  g.deathc++;
   reset_soon();
 }
