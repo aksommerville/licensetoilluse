@@ -88,7 +88,7 @@ int sprite_move(struct sprite *sprite,double dx,double dy) {
                 // Oneways only count as a collision if we're moving down and were previously clear of it.
                 if (dir==0x02) {
                   double bt=row;
-                  double pvb=sprite->y+sprite->hbb;
+                  double pvb=sprite->y+sprite->hbb-SMIDGE;
                   if (pvb<=bt) {
                     ny=bt-sprite->hbb;
                     REHITBOX
