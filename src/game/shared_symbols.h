@@ -50,6 +50,7 @@
 #define NS_sprtype_soulballs  7 /* (u32)0 */
 #define NS_sprtype_powerup    8 /* (u8:index)0 (u24)0 */
 #define NS_sprtype_coin       9 /* (u8:index)0 (u24)0 */
+#define NS_sprtype_rifle     10 /* (u32)0 */
 #define FOR_EACH_SPRTYPE \
   _(dummy) \
   _(hero) \
@@ -60,6 +61,7 @@
   _(bullet) \
   _(soulballs) \
   _(powerup) \
-  _(coin)
+  _(coin) \
+  _(rifle)
 
 #endif
