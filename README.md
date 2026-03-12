@@ -34,3 +34,5 @@ I'm American and I forgot that the game's inspiration, _Licence to Kill_, is Bri
 - [x] Need some hard reset option! Esp at the very end, if you scare the last guard, you can't win and maybe can't die either.
 - - AUX1 to pause, with "Restart Level" and "Main Menu" options.
 - [x] Best Time needs to save even if it isn't accompanied by a new high score.
+- [x] !!! Web only !!! Soliders running away face the wrong direction. How???
+- - ...said `>=` when i meant `>`. I guess in web for whatever reason, that code struck zero exactly every time.

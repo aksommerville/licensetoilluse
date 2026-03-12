@@ -247,7 +247,7 @@ void _soldier_update(struct sprite *sprite,double elapsed) {
   /* During shock, just tick the timer down.
    */
   if (SPRITE->shocked>0.0) {
-    if ((SPRITE->shocked-=elapsed)>=0.0) return;
+    if ((SPRITE->shocked-=elapsed)>0.0) return;
     sprite->xform^=EGG_XFORM_XREV;
   }
 
