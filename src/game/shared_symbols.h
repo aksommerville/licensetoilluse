@@ -23,6 +23,7 @@
 #define CMD_sprite_type      0x22 /* u16:sprtype */
 #define CMD_sprite_powertype 0x24 /* u16:powertype ; NS_sprtype_powerup */
 #define CMD_sprite_solid     0x40 /* s8:left s8:right s8:top s8:bottom */
+#define CMD_sprite_soldier   0x41 /* u4.4:walktimemax u4.4:chilltimemax u4.4:walkspeed u4.4:firetime */
 
 #define NS_tilesheet_physics 1
 #define NS_tilesheet_family 0

@@ -8,14 +8,8 @@
 #define DISAPPEAR_MARGIN 100 /* pixels */
 #define SPOOK_SPEED 8.0 /* m/s */
 #define SPOOK_VISIBILITY 4.0 /* Horizontal meters. */
-#define FIRE_TIME 0.750
 #define FIRE_VISIBILITY 7.0 /* Horizontal meters. */
 #define STUCK_DISAPPEAR_TIME 2.0
-#define WALK_TIME_MIN 1.000
-#define WALK_TIME_MAX 2.000
-#define WALK_SPEED 3.0
-#define CHILL_TIME_MIN 1.000
-#define CHILL_TIME_MAX 2.000
  
 struct sprite_soldier {
   struct sprite hdr;
@@ -29,11 +23,46 @@ struct sprite_soldier {
   double walkclock; // Counts down while idly walking.
   double walkdx;
   double chillclock; // Counts down when not idly walking.
+  
+  // Constants from sprite resource:
+  double walk_time_min,walk_time_max;
+  double chill_time_min,chill_time_max;
+  double walk_speed;
+  double fire_time;
 };
 
 #define SPRITE ((struct sprite_soldier*)sprite)
 
+/* Init.
+ */
+
 int _soldier_init(struct sprite *sprite) {
+
+  // Defaults may be overridden by resource:
+  SPRITE->walk_time_min= 1.000;
+  SPRITE->walk_time_max= 2.000;
+  SPRITE->chill_time_min=1.000;
+  SPRITE->chill_time_max=2.000;
+  SPRITE->walk_speed=    3.000;
+  SPRITE->fire_time=     0.750;
+
+  struct cmdlist_reader reader;
+  if (sprite_reader_init(&reader,sprite->cmd,sprite->cmdc)>=0) {
+    struct cmdlist_entry cmd;
+    while (cmdlist_reader_next(&cmd,&reader)>0) {
+      switch (cmd.opcode) {
+        case CMD_sprite_soldier: {
+            SPRITE->walk_time_max=cmd.arg[0]/16.0;
+            SPRITE->walk_time_min=SPRITE->walk_time_max*0.5;
+            SPRITE->chill_time_max=cmd.arg[1]/16.0;
+            SPRITE->chill_time_min=SPRITE->chill_time_max*0.5;
+            SPRITE->walk_speed=cmd.arg[2]/16.0;
+            SPRITE->fire_time=cmd.arg[3]/16.0;
+          } break;
+      }
+    }
+  }
+  
   return 0;
 }
 
@@ -177,28 +206,28 @@ static void soldier_choose_idle_activity(struct sprite *sprite) {
   soldier_measure_freedom(&freel,&freer,sprite);
   if (freel>1.0) candidatev[candidatec++]='l';
   if (freer>1.0) candidatev[candidatec++]='r';
-  candidatev[candidatec++]='c';
+  if (!candidatec||(SPRITE->chill_time_max>=0.250)) candidatev[candidatec++]='c';
   char action=candidatev[rand()%candidatec];
   
   double clocklimit=0.0;
   switch (action) {
     case 'l': {
-        SPRITE->walkdx=-WALK_SPEED;
+        SPRITE->walkdx=-SPRITE->walk_speed;
         SPRITE->walkclock=(rand()&0xffff)/65535.0;
-        SPRITE->walkclock=WALK_TIME_MIN*(1.0-SPRITE->walkclock)+WALK_TIME_MAX*SPRITE->walkclock;
+        SPRITE->walkclock=SPRITE->walk_time_min*(1.0-SPRITE->walkclock)+SPRITE->walk_time_max*SPRITE->walkclock;
         sprite->xform=EGG_XFORM_XREV;
-        clocklimit=freel/WALK_SPEED;
+        clocklimit=freel/SPRITE->walk_speed;
       } break;
     case 'r': {
-        SPRITE->walkdx=WALK_SPEED;
+        SPRITE->walkdx=SPRITE->walk_speed;
         SPRITE->walkclock=(rand()&0xffff)/65535.0;
-        SPRITE->walkclock=WALK_TIME_MIN*(1.0-SPRITE->walkclock)+WALK_TIME_MAX*SPRITE->walkclock;
+        SPRITE->walkclock=SPRITE->walk_time_min*(1.0-SPRITE->walkclock)+SPRITE->walk_time_max*SPRITE->walkclock;
         sprite->xform=0;
-        clocklimit=freer/WALK_SPEED;
+        clocklimit=freer/SPRITE->walk_speed;
       } break;
     case 'c': {
         SPRITE->chillclock=(rand()&0xffff)/65535.0;
-        SPRITE->chillclock=CHILL_TIME_MIN*(1.0-SPRITE->chillclock)+CHILL_TIME_MAX*SPRITE->chillclock;
+        SPRITE->chillclock=SPRITE->chill_time_min*(1.0-SPRITE->chillclock)+SPRITE->chill_time_max*SPRITE->chillclock;
         SPRITE->animclock=0.0;
         SPRITE->animframe=0;
       } break;
@@ -279,7 +308,7 @@ void _soldier_update(struct sprite *sprite,double elapsed) {
    * Don't stop walking, if we're doing that.
    */
   if (solider_sees_something_shooty(sprite)) {
-    if (SPRITE->fireclock<=0.0) SPRITE->fireclock=FIRE_TIME;
+    if (SPRITE->fireclock<=0.0) SPRITE->fireclock=SPRITE->fire_time;
     if ((SPRITE->fireclock-=elapsed)<=0.0) {
       soldier_fire(sprite);
       return;

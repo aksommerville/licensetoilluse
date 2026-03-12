@@ -1,0 +1,5 @@
+image image:graphics
+tile 224 0
+type (u16:sprtype)soldier
+solid -6 4 -16 8
+soldier 0x20 0x00 0x40 0x06
