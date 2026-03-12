@@ -48,6 +48,7 @@ FOR_EACH_SPRTYPE
 #undef _
 
 void sprite_hero_get_dead(struct sprite *sprite,struct sprite *assailant);
+int sprite_hero_get_seated(const struct sprite *sprite);
 
 /* Move with instant collision correction.
  * Returns nonzero if fully stopped due to collision.

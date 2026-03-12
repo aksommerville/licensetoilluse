@@ -61,7 +61,7 @@ static int score_decode_int(int *dst,const char *src,int srcc) {
 
 static int score_decode_time(int *dst,const char *src,int srcc) {
   if (srcc!=9) return -1;
-  if ((src[2]!=':')||(src[4]!='.')) return -1;
+  if ((src[2]!=':')||(src[5]!='.')) return -1;
   int m10=src[0]-'0';
   int m01=src[1]-'0';
   int s10=src[3]-'0';

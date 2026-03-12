@@ -20,6 +20,7 @@ static int _rifle_init(struct sprite *sprite) {
   SPRITE->xz=sprite->x;
   SPRITE->yz=sprite->y;
   SPRITE->dy=DY_INITIAL;
+  sprite->y-=0.750;
   return 0;
 }
 
@@ -29,6 +30,7 @@ static void _rifle_update(struct sprite *sprite,double elapsed) {
   if ((sprite->y>=SPRITE->yz)&&(SPRITE->dy>0.0)) {
     // In general, reassigning (type) would be wildly unsafe. Pretend you don't see this:
     sprite->type=&sprite_type_dummy;
+    sprite->y=SPRITE->yz;
   }
 }
 

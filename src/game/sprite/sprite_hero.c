@@ -395,3 +395,11 @@ void sprite_hero_get_dead(struct sprite *sprite,struct sprite *assailant) {
   g.deathc++;
   reset_soon();
 }
+
+/* Get seated.
+ */
+
+int sprite_hero_get_seated(const struct sprite *sprite) {
+  if (!sprite||(sprite->type!=&sprite_type_hero)) return 0;
+  return SPRITE->seated;
+}

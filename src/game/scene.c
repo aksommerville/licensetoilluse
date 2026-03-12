@@ -147,7 +147,7 @@ void reset_soon() {
 
 void scene_update_goal(double elapsed) {
   int nqx=-1,nqy=-1;
-  if (g.hero) {
+  if (g.hero&&sprite_hero_get_seated(g.hero)) {
     nqx=(int)g.hero->x;
     nqy=(int)g.hero->y;
   }
